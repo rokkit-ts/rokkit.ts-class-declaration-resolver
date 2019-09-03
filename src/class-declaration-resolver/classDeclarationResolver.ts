@@ -32,17 +32,6 @@ export class ClassDeclarationResolver {
     return output;
   }
 
-  public static importClassDeclarationFromFile(
-    filePath: string
-  ): ClassDeclaration[] {
-    const resolvedFilePath = path.resolve(filePath);
-    if (fs.existsSync(resolvedFilePath)) {
-      const fileData: Buffer = fs.readFileSync(resolvedFilePath);
-      return JSON.parse(fileData.toString()) as ClassDeclaration[];
-    }
-    throw new Error("No class declaration file found.");
-  }
-
   public static createClassDeclarationFile(
     scanningEntryPointPath: string,
     outDirPath: string,
@@ -57,6 +46,17 @@ export class ClassDeclarationResolver {
         2
       )
     );
+  }
+
+  public static importClassDeclarationFromFile(
+    filePath: string
+  ): ClassDeclaration[] {
+    const resolvedFilePath = path.resolve(filePath);
+    if (fs.existsSync(resolvedFilePath)) {
+      const fileData: Buffer = fs.readFileSync(resolvedFilePath);
+      return JSON.parse(fileData.toString()) as ClassDeclaration[];
+    }
+    throw new Error("No class declaration file found.");
   }
 
   private static isNodeExported(node: ts.Node): boolean {
