@@ -5,3 +5,4 @@
  */
 
 export * from "./projectScanner";
+export * from "./filePath";
