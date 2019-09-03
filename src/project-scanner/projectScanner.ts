@@ -3,10 +3,17 @@ import * as path from "path";
 import { FilePath } from "./filePath";
 
 export class ProjectScanner {
-  private readonly entryPointPath: string;
+  public static scanProject(entryPointPath: string): FilePath[] {
+    return this.scanDirectory(path.resolve(entryPointPath));
+  }
 
-  constructor(entryPointPath: string) {
-    this.entryPointPath = path.resolve(entryPointPath);
+  public static filterFiles(
+    filePaths: FilePath[],
+    fileExtension: string
+  ): FilePath[] {
+    return filePaths.filter(filePath =>
+      filePath.fileInformation.ext.includes(fileExtension)
+    );
   }
 
   private static isDirectory(filePath: string): boolean {
@@ -14,11 +21,7 @@ export class ProjectScanner {
     return stats.isDirectory();
   }
 
-  public scanProject(): FilePath[] {
-    return this.scanDirectory(this.entryPointPath);
-  }
-
-  private scanDirectory(directoryPath: string): FilePath[] {
+  private static scanDirectory(directoryPath: string): FilePath[] {
     let filePaths: FilePath[] = [];
     let filesInDir: string[] = fs.readdirSync(directoryPath);
     filesInDir = filesInDir.map(file => directoryPath + "/" + file);
@@ -27,8 +30,8 @@ export class ProjectScanner {
         filePaths = filePaths.concat(this.scanDirectory(filePath));
       } else {
         filePaths.push({
-          filePath: filePath,
-          fileInformation: path.parse(filePath)
+          fileInformation: path.parse(filePath),
+          filePath
         });
       }
     });

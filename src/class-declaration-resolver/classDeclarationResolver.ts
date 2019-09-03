@@ -3,7 +3,6 @@ import * as path from "path";
 import * as ts from "typescript";
 import { Node } from "typescript";
 import { ProjectScanner } from "../project-scanner";
-import { FilePath } from "../project-scanner/filePath";
 import {
   ClassDeclaration,
   ClassInformation,
@@ -12,15 +11,11 @@ import {
 } from "./classDeclaration";
 
 export class ClassDeclarationResolver {
-  private projectScanner: ProjectScanner;
-
-  constructor(entryPointPath: string) {
-    this.projectScanner = new ProjectScanner(entryPointPath);
-  }
-
-  public createClassDeclarations(): ClassDeclaration[] {
-    const unfilteredFiles = this.projectScanner.scanProject();
-    const filteredFiles = this.filterFiles(unfilteredFiles, ".ts");
+  public static createClassDeclarations(
+    scanningEntryPointPath: string
+  ): ClassDeclaration[] {
+    const unfilteredFiles = ProjectScanner.scanProject(scanningEntryPointPath);
+    const filteredFiles = ProjectScanner.filterFiles(unfilteredFiles, ".ts");
     const filePaths = filteredFiles.map(file => file.filePath);
     const program = ts.createProgram(filePaths, {
       incremental: true,
@@ -37,34 +32,45 @@ export class ClassDeclarationResolver {
     return output;
   }
 
-  public importClassDeclarationFromFile(filePath: string): ClassDeclaration[] {
-    const fileData: Buffer = fs.readFileSync(path.resolve(filePath));
-    return JSON.parse(fileData.toString()) as ClassDeclaration[];
+  public static importClassDeclarationFromFile(
+    filePath: string
+  ): ClassDeclaration[] {
+    const resolvedFilePath = path.resolve(filePath);
+    if (fs.existsSync(resolvedFilePath)) {
+      const fileData: Buffer = fs.readFileSync(resolvedFilePath);
+      return JSON.parse(fileData.toString()) as ClassDeclaration[];
+    }
+    throw new Error("No class declaration file found.");
   }
 
-  public createClassDeclarationFile(
+  public static createClassDeclarationFile(
+    scanningEntryPointPath: string,
     outDirPath: string,
     fileName: string
   ): void {
     if (!fs.pathExistsSync(outDirPath)) fs.mkdirSync(outDirPath);
     fs.writeFileSync(
       path.resolve(outDirPath + "/" + fileName),
-      JSON.stringify(this.createClassDeclarations(), undefined, 2)
+      JSON.stringify(
+        this.createClassDeclarations(scanningEntryPointPath),
+        undefined,
+        2
+      )
     );
   }
 
-  private isNodeExported(node: ts.Node): boolean {
+  private static isNodeExported(node: ts.Node): boolean {
     return (
       (ts.getCombinedNodeFlags(node) & ts.ModifierFlags.Export) !== 0 ||
       (!!node.parent && node.parent.kind === ts.SyntaxKind.SourceFile)
     );
   }
 
-  private isSourceFile(source: any): source is ts.SourceFile {
+  private static isSourceFile(source: any): source is ts.SourceFile {
     return source.isDeclarationFile !== undefined;
   }
 
-  private serializeClassDeclarations(
+  private static serializeClassDeclarations(
     source: ts.SourceFile | Node,
     checker: ts.TypeChecker
   ): ClassDeclaration[] {
@@ -101,7 +107,7 @@ export class ClassDeclarationResolver {
     return output;
   }
 
-  private serializeClassInformation(
+  private static serializeClassInformation(
     node: Node,
     checker: ts.TypeChecker
   ): ClassInformation | undefined {
@@ -118,7 +124,7 @@ export class ClassDeclarationResolver {
     return;
   }
 
-  private serializeClass(
+  private static serializeClass(
     symbol: ts.Symbol,
     checker: ts.TypeChecker
   ): ClassInformation {
@@ -133,7 +139,7 @@ export class ClassDeclarationResolver {
     };
   }
 
-  private serializeClassConstructor(
+  private static serializeClassConstructor(
     constructorType: ts.Type,
     checker: ts.TypeChecker
   ): ConstructorDeclaration[] {
@@ -144,7 +150,7 @@ export class ClassDeclarationResolver {
     });
   }
 
-  private serializeClassConstructorParameter(
+  private static serializeClassConstructorParameter(
     signature: ts.Signature,
     checker: ts.TypeChecker
   ): ConstructorParameter[] {
@@ -159,14 +165,5 @@ export class ClassDeclarationResolver {
         )
       };
     });
-  }
-
-  private filterFiles(
-    filePaths: FilePath[],
-    fileExtension: string
-  ): FilePath[] {
-    return filePaths.filter(filePath =>
-      filePath.fileInformation.ext.includes(fileExtension)
-    );
   }
 }

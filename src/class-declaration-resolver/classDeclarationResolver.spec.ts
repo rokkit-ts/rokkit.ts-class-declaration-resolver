@@ -6,10 +6,9 @@ import { ClassDeclarationResolver } from "./classDeclarationResolver";
 export class ClassDeclarationResolverSpec {
   @test
   public createClassDeclaration(): void {
-    const classDeclarationResolver = new ClassDeclarationResolver(
+    const classDeclarations = ClassDeclarationResolver.createClassDeclarations(
       "./sample-project"
     );
-    const classDeclarations = classDeclarationResolver.createClassDeclarations();
     assert.exists(classDeclarations);
     assert.isArray(classDeclarations);
     assert.isNotEmpty(classDeclarations);
@@ -30,16 +29,13 @@ export class ClassDeclarationResolverSpec {
 
   @test
   public createDeclarationFile(): void {
-    const classDeclarationResolver = new ClassDeclarationResolver(
-      "./sample-project"
-    );
-
-    classDeclarationResolver.createClassDeclarationFile(
+    ClassDeclarationResolver.createClassDeclarationFile(
+      "./sample-project",
       "./dist",
       "declarations.json"
     );
 
-    const classDeclarations = classDeclarationResolver.importClassDeclarationFromFile(
+    const classDeclarations = ClassDeclarationResolver.importClassDeclarationFromFile(
       "./dist/declarations.json"
     );
 
@@ -59,5 +55,14 @@ export class ClassDeclarationResolverSpec {
     expect(classNames).to.include("App");
     expect(classNames).to.include("App2");
     expect(classNames).to.include("App3");
+  }
+
+  @test
+  public importNotExistingDeclarationFile(): void {
+    expect(() =>
+      ClassDeclarationResolver.importClassDeclarationFromFile(
+        "./sample-project/declaration.yml"
+      )
+    ).to.throw("No class declaration file found.");
   }
 }
