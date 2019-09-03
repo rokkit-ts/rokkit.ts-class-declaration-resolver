@@ -1,6 +1,6 @@
 {
   "name": "@rokkit.ts/rokkit.ts-class-declaration-resolver",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Rokkit.ts Class declaration resolver is used to create class information that are not present on runtime. It is mainly used by the rokkit.ts-dependency-injection package.",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",

@@ -7,7 +7,7 @@ Rokkit.ts Class declaration resolver is used to create class information that ar
 To install the package:
 
 ```bash
-npm install @rokkit.ts/dependency-injection
+npm install @rokkit.ts/class-declaration-resolver
 ```
 
 ## Usage
