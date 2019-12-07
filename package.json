@@ -45,5 +45,8 @@
     "hooks": {
       "pre-commit": "pretty-quick --staged"
     }
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }
