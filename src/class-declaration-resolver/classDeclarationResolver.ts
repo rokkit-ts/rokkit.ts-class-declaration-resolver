@@ -33,18 +33,33 @@ export class ClassDeclarationResolver {
   }
 
   public static createClassDeclarationFile(
-    scanningEntryPointPath: string,
-    outDirPath: string,
-    fileName: string
+    projectRootPath: string,
+    sourceCodeDirectory: string,
+    declarationFileDirectory: string,
+    declarationFileName: string,
+    outDirectoryPath?: string
   ): void {
-    if (!fs.pathExistsSync(outDirPath)) fs.mkdirSync(outDirPath);
+    if (!fs.pathExistsSync(declarationFileDirectory)) {
+      fs.mkdirSync(declarationFileDirectory);
+    }
+
+    const declarations = this.createClassDeclarations(
+      path.join(projectRootPath, sourceCodeDirectory)
+    );
+
+    if (outDirectoryPath) {
+      declarations.forEach(declaration => {
+        declaration.compiledFilePath = ClassDeclarationResolver.createCompiledFilePath(
+          declaration.sourceFilePath,
+          sourceCodeDirectory,
+          outDirectoryPath
+        );
+      });
+    }
+
     fs.writeFileSync(
-      path.resolve(outDirPath + "/" + fileName),
-      JSON.stringify(
-        this.createClassDeclarations(scanningEntryPointPath),
-        undefined,
-        2
-      )
+      path.resolve(declarationFileDirectory + "/" + declarationFileName),
+      JSON.stringify(declarations, undefined, 2)
     );
   }
 
@@ -59,8 +74,19 @@ export class ClassDeclarationResolver {
     throw new Error("No class declaration file found.");
   }
 
+  private static createCompiledFilePath(
+    sourceFilePath: string,
+    sourceCodeDirectory: string,
+    outDirectory: string
+  ) {
+    sourceFilePath =
+      sourceFilePath.substr(0, sourceFilePath.lastIndexOf(".")) + ".js";
+    return sourceFilePath.replace(sourceCodeDirectory, outDirectory);
+  }
+
   private static isNodeExported(node: ts.Node): boolean {
     return (
+      // tslint:disable-next-line:no-bitwise
       (ts.getCombinedNodeFlags(node) & ts.ModifierFlags.Export) !== 0 ||
       (!!node.parent && node.parent.kind === ts.SyntaxKind.SourceFile)
     );
@@ -85,7 +111,7 @@ export class ClassDeclarationResolver {
           if (classInformation) {
             output.push({
               classInformation,
-              filePath: node.getSourceFile().fileName
+              sourceFilePath: node.getSourceFile().fileName
             });
           }
         });
@@ -99,7 +125,7 @@ export class ClassDeclarationResolver {
         if (classInformation) {
           output.push({
             classInformation,
-            filePath: subNode.getSourceFile().fileName
+            sourceFilePath: subNode.getSourceFile().fileName
           });
         }
       });

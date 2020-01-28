@@ -30,9 +30,11 @@ export class ClassDeclarationResolverSpec {
   @test
   public createDeclarationFile(): void {
     ClassDeclarationResolver.createClassDeclarationFile(
-      "./sample-project",
+      ".",
+      "sample-project",
       "./dist",
-      "declarations.json"
+      "declarations.json",
+      "test"
     );
 
     const classDeclarations = ClassDeclarationResolver.importClassDeclarationFromFile(
@@ -45,6 +47,8 @@ export class ClassDeclarationResolverSpec {
     assert.equal(classDeclarations.length, 3);
     assert.exists(classDeclarations[0]);
     assert.exists(classDeclarations[0].classInformation);
+    assert.exists(classDeclarations[0].sourceFilePath);
+    assert.exists(classDeclarations[0].compiledFilePath);
     assert.exists(classDeclarations[0].classInformation.className);
     assert.exists(classDeclarations[0].classInformation.constructors);
     assert.isArray(classDeclarations[0].classInformation.constructors);

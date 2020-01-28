@@ -1,5 +1,6 @@
 export interface ClassDeclaration {
-  filePath: string;
+  sourceFilePath: string;
+  compiledFilePath?: string;
   classInformation: ClassInformation;
 }
 
