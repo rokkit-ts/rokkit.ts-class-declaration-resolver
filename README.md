@@ -42,13 +42,8 @@ const declarations = ClassDeclarationResolver.importClassDeclarationFromFile(
 
 ## Contribution
 
-If you want to contribute to the project, please don't hesitate to send feedback, create issues or a pull request for
-open ones.
-
-## Upcoming features
-
-The next feature extends the ClassDeclarationResolver. It will now tag the file with a specific date and check if the
-file is still valid on the next import.
+All kinds of contributions are welcome, no matter how big or small.
+Before you start to contribute please read our [Code of Conduct](./CODE_OF_CONDUCT.md).
 
 ## License
 
