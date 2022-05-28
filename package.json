@@ -22,7 +22,7 @@
   },
   "homepage": "https://github.com/rokkit-ts/rokkit.ts-class-declaration-resolver#readme",
   "dependencies": {
-    "fs-extra": "^8.1.0"
+    "fs-extra": "^9.0.0"
   },
   "devDependencies": {
     "@types/chai": "^4.2.0",
